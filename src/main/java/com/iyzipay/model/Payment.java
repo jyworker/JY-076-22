@@ -20,19 +20,27 @@ public class Payment extends PaymentResource implements ResponseSignatureGenerat
 
     public static Payment create(CreatePaymentRequest request, Options options) {
         String path = "/payment/auth";
-        return HttpClient.create().post(options.getBaseUrl() + path,
+        Payment response = HttpClient.create().post(options.getBaseUrl() + path,
                 getHttpProxy(options),
                 getHttpHeadersV2(path, request, options),
                 request,
                 Payment.class);
+        if (response != null) {
+            response.normalizeResponse();
+        }
+        return response;
     }
 
     public static Payment retrieve(RetrievePaymentRequest request, Options options) {
         String path = "/payment/detail";
-        return HttpClient.create().post(options.getBaseUrl() + path,
+        Payment response = HttpClient.create().post(options.getBaseUrl() + path,
                 getHttpProxy(options),
                 getHttpHeadersV2(path, request, options),
                 request,
                 Payment.class);
+        if (response != null) {
+            response.normalizeResponse();
+        }
+        return response;
     }
 }

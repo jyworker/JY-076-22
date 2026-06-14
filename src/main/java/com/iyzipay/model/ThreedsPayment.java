@@ -21,28 +21,40 @@ public class ThreedsPayment extends PaymentResource implements ResponseSignature
 
     public static ThreedsPayment create(CreateThreedsPaymentRequest request, Options options) {
         String path = "/payment/3dsecure/auth";
-        return HttpClient.create().post(options.getBaseUrl() + path,
+        ThreedsPayment response = HttpClient.create().post(options.getBaseUrl() + path,
                 getHttpProxy(options),
                 getHttpHeadersV2(path, request, options),
                 request,
                 ThreedsPayment.class);
+        if (response != null) {
+            response.normalizeResponse();
+        }
+        return response;
     }
 
     public static ThreedsPayment createV2(CreateThreedsPaymentRequestV2 request, Options options) {
         String path = "/payment/v2/3dsecure/auth";
-        return HttpClient.create().post(options.getBaseUrl() + path,
+        ThreedsPayment response = HttpClient.create().post(options.getBaseUrl() + path,
                 getHttpProxy(options),
                 getHttpHeadersV2(path, request, options),
                 request,
                 ThreedsPayment.class);
+        if (response != null) {
+            response.normalizeResponse();
+        }
+        return response;
     }
 
     public static ThreedsPayment retrieve(RetrievePaymentRequest request, Options options) {
         String path = "/payment/detail";
-        return HttpClient.create().post(options.getBaseUrl() + path,
+        ThreedsPayment response = HttpClient.create().post(options.getBaseUrl() + path,
                 getHttpProxy(options),
                 getHttpHeadersV2(path, request, options),
                 request,
                 ThreedsPayment.class);
+        if (response != null) {
+            response.normalizeResponse();
+        }
+        return response;
     }
 }

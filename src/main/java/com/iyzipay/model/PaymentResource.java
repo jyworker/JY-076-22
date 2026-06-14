@@ -2,6 +2,7 @@ package com.iyzipay.model;
 
 import com.google.gson.annotations.SerializedName;
 import com.iyzipay.IyzipayResource;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -9,6 +10,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public class PaymentResource extends IyzipayResource {
+
+    public static final String PAYMENT_STATUS_SUCCESS = "SUCCESS";
 
     private BigDecimal price;
     private BigDecimal paidPrice;
@@ -289,6 +292,17 @@ public class PaymentResource extends IyzipayResource {
 
     public void setSignature(String signature) {
         this.signature = signature;
+    }
+
+    public final boolean isPaymentSuccessStatus() {
+        return PAYMENT_STATUS_SUCCESS.equalsIgnoreCase(paymentStatus);
+    }
+
+    @Override
+    protected void onNormalizedFailure() {
+        if (PAYMENT_STATUS_SUCCESS.equalsIgnoreCase(paymentStatus)) {
+            paymentStatus = null;
+        }
     }
 
     @Override

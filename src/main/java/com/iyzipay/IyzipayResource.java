@@ -1,6 +1,7 @@
 package com.iyzipay ;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank ;
+import static org.apache.commons.lang3.StringUtils.isBlank ;
 
 import java.net.InetSocketAddress ;
 import java.net.Proxy ;
@@ -20,6 +21,12 @@ public class IyzipayResource {
     private static final String IYZIWS_V2_HEADER_NAME = "IYZWSv2 ";
     private static final String CLIENT_VERSION = IyzipayResource.class.getPackage().getImplementationVersion();
     private static final String CLIENT_TITLE = IyzipayResource.class.getPackage().getImplementationTitle();
+
+    public static final String STATUS_SUCCESS = "success";
+    public static final String STATUS_FAILURE = "failure";
+    public static final String DEFAULT_ERROR_CODE = "UNKNOWN_ERROR";
+    public static final String DEFAULT_ERROR_MESSAGE = "Response status is invalid or missing";
+    public static final String DEFAULT_ERROR_GROUP = "INTERNAL_ERROR";
 
     private String status;
     private String errorCode;
@@ -113,6 +120,58 @@ public class IyzipayResource {
 
     public void setConversationId(String conversationId) {
         this.conversationId = conversationId;
+    }
+
+    public final boolean isSuccessStatus() {
+        return STATUS_SUCCESS.equalsIgnoreCase(status);
+    }
+
+    public final boolean isFailureStatus() {
+        return STATUS_FAILURE.equalsIgnoreCase(status);
+    }
+
+    public final boolean hasErrorFields() {
+        return isNotBlank(errorCode) || isNotBlank(errorMessage) || isNotBlank(errorGroup);
+    }
+
+    protected final void normalizeResponse() {
+        boolean hasKnownSuccess = STATUS_SUCCESS.equalsIgnoreCase(status);
+        boolean hasKnownFailure = STATUS_FAILURE.equalsIgnoreCase(status);
+        boolean hasUnknownStatus = !hasKnownSuccess && !hasKnownFailure;
+        boolean statusFieldMissing = isBlank(status);
+
+        if (hasKnownSuccess && !hasErrorFields()) {
+            return;
+        }
+
+        if (hasKnownSuccess && hasErrorFields()) {
+            status = STATUS_FAILURE;
+            fillDefaultErrorFieldsIfMissing();
+            onNormalizedFailure();
+            return;
+        }
+
+        if (hasKnownFailure || hasUnknownStatus || statusFieldMissing) {
+            status = STATUS_FAILURE;
+            fillDefaultErrorFieldsIfMissing();
+            onNormalizedFailure();
+            return;
+        }
+    }
+
+    protected void onNormalizedFailure() {
+    }
+
+    private void fillDefaultErrorFieldsIfMissing() {
+        if (isBlank(errorCode)) {
+            errorCode = DEFAULT_ERROR_CODE;
+        }
+        if (isBlank(errorMessage)) {
+            errorMessage = DEFAULT_ERROR_MESSAGE;
+        }
+        if (isBlank(errorGroup)) {
+            errorGroup = DEFAULT_ERROR_GROUP;
+        }
     }
 
     @Override
